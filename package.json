@@ -1,0 +1,28 @@
+{
+  "name": "elite-homes",
+  "version": "1.0.0",
+  "description": "Data grinding to find potential home systems in Elite Dangerous",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "hunt": "node househunt.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SgiobairOg/elite-homes.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SgiobairOg/elite-homes/issues"
+  },
+  "homepage": "https://github.com/SgiobairOg/elite-homes#readme",
+  "dependencies": {
+    "ascii-table": "^0.0.9",
+    "chalk": "^4.1.0",
+    "cli-progress": "^3.9.0",
+    "cli-spinner": "^0.2.10",
+    "got": "^11.8.2",
+    "node-gzip": "^1.1.2"
+  }
+}
