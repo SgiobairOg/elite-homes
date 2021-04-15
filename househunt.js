@@ -4,6 +4,19 @@ const AsciiTable = require('ascii-table');
 const cliProgress = require('cli-progress');
 const Spinner = require('cli-spinner').Spinner;
 const chalk = require('chalk');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const csvWriter = createCsvWriter({
+    path: 'reports/populated-systems.csv',
+    header: [
+        {id: 'index', title: ' '},
+        {id: 'name', title: 'Name'},
+        {id: 'allegiance', title: 'Allegiance'},
+        {id: 'population', title: 'Population'},
+        {id: 'factions', title: 'Faction Count'},
+        {id: 'stations', title: 'Orbital Stations'},
+        {id: 'surfaceStations', title: 'Surface Stations'}
+    ]
+});
 
 Object.defineProperty(Array.prototype, "tap", { value(f) { f(this); return this; }});
 
@@ -22,7 +35,7 @@ const preferences = {
     population: 1,
     factionMax: 6,
     referenceSystem: '26 ALPHA MONOCEROTIS',
-    referenceRange: 50,
+    referenceRange: 100,
 }
 
 const multibar = new cliProgress.MultiBar({
@@ -46,14 +59,14 @@ const freeOfPlayerFactions = function( system ) {
     if(!factions) return true;
     const playerFactions = factions
         .filter(faction => faction.isPlayer)
-    if(playerFactions.length > 0) console.info(`  X - ${name} has ${playerFactions.length} player faction(s)`)
+    //if(playerFactions.length > 0) console.info(`  X - ${name} has ${playerFactions.length} player faction(s)`)
     return playerFactions.length === 0;
 }
 
 const hasLargePad = function( system, largeStationNameData ) {
     const systemStationNames = system.stations.map( station => station.name )
     const hasLargePad = systemStationNames.some( name => largeStationNameData.includes(name))
-    if(!hasLargePad) console.info(`  X - ${system.name} has no large landing pads`)
+    //if(!hasLargePad) console.info(`  X - ${system.name} has no large landing pads`)
     return hasLargePad
 }
 
@@ -152,7 +165,7 @@ async function hunt() {
 
     console.info(`Processing ${populatedSystems.length} systems...`)
 
-    populatedSystems
+    const data = populatedSystems
         .tap( () => console.info(`Filtering for systems within ${preferences.referenceRange}Ly of ${referenceSystem.name}...`))
         .filter( system => isWithinRangeOf(system, referenceSystem, preferences.referenceRange))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
@@ -162,24 +175,46 @@ async function hunt() {
         .tap( () => console.info(`Filtering for systems with more than ${preferences.population} population...`))
         .filter( system => system.population >= preferences.population)
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
-        .tap( () => console.info(`Filtering out systems with player factions...`))
+        /*.tap( () => console.info(`Filtering out systems with player factions...`))
         .filter( system => freeOfPlayerFactions(system))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
         .tap( () => console.info(`Filtering for systems with fewer than ${preferences.factionMax} factions...`))
         .filter( system => factionsWithinLimits(system.factions, preferences.factionMax))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
-        .tap( () => console.info(`Filtering out systems without large landing pads...`))
+        */.tap( () => console.info(`Filtering out systems without large landing pads...`))
         .filter( system => hasLargePad(system, stations))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
         .tap( () => console.info(`Filtering out systems requiring permits...`))
         .filter( system => hasNoPermit(system, systemsPermitData))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
-        .forEach( (system, index) => {
-            const { name, allegiance, population, factions } = system;
-            outputTable.addRow(`${index+1}.`, name, allegiance, population, factions.filter(faction => faction.influence > 0.001).length)
+        .sort( (systemA, systemB) => systemA.population - systemB.population)
+        .map((system, index) => {
+            const { name, allegiance, population, factions, stations } = system;
+            return { 
+                index: index+1,
+                name,
+                allegiance,
+                population,
+                factions: factions.filter(faction => faction.influence > 0.001).length,
+                stations: stations.filter(station => station.type !== 'Planetary Outpost').length,
+                surfaceStations: stations.filter(station => station.type === 'Planetary Outpost').length
+            }
+        });
+        
+    data.forEach( (system) => {
+            const { index, name, allegiance, population, factions, stations, surfaceStations } = system;
+            outputTable.addRow(`${index}`, name, allegiance, population, factions, stations, surfaceStations)
         });
 
-    console.log(`\n${outputTable.toString()}`);
+    console.log(data[0])
+
+    console.log(populatedSystems[1702].stations)
+
+    await csvWriter
+        .writeRecords(data)
+        .then(()=> console.log('The CSV file was written successfully'));
+
+    //console.log(`\n${outputTable.toString()}`);
     process.exit(0)
 };
 
