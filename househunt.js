@@ -1,10 +1,29 @@
-const { ungzip } = require('node-gzip');
+const verbose = false
+
+//function for requiring with try catch
+//by DaniGuardiola
+//https://stackoverflow.com/questions/13197795/handle-errors-thrown-by-require-module-in-node-js/34005010#34005010
+function requireF(modulePath){ // force require
+    try {
+		return require(modulePath);
+    }
+    catch (e) {
+		console.log('requireF(): The file "' + modulePath + '".js could not be loaded.');
+		console.log('Try running "npm install ' + modulePath + ' --save"');
+		process.exit(1);
+    }
+}
+
+//load required
+const { ungzip } = requireF('node-gzip');
 const got = require('got');
 const AsciiTable = require('ascii-table');
 const cliProgress = require('cli-progress');
 const Spinner = require('cli-spinner').Spinner;
 const chalk = require('chalk');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
+//CVS writer formating
 const csvWriter = createCsvWriter({
     path: 'reports/populated-systems.csv',
     header: [
