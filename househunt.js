@@ -22,6 +22,7 @@ const cliProgress = require('cli-progress');
 const Spinner = require('cli-spinner').Spinner;
 const chalk = require('chalk');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const fs = require('fs');
 
 //CVS writer formating
 const csvWriter = createCsvWriter({
@@ -228,7 +229,12 @@ async function hunt() {
     console.log(data[0])
 
     console.log(populatedSystems[1702].stations)
-
+	
+	//Make sure to add the reports folder if it does not already exist
+	if (!fs.existsSync("reports")){
+		fs.mkdirSync("reports");
+	}
+	
     await csvWriter
         .writeRecords(data)
         .then(()=> console.log('The CSV file was written successfully'));
