@@ -238,6 +238,7 @@ async function hunt() {
         fs.mkdirSync("reports");
     }
     
+	//TODO: add a check to see if file is already opened for writing
     await csvWriter
         .writeRecords(data)
         .then(()=> console.log('The CSV file was written successfully'));
