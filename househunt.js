@@ -81,6 +81,12 @@ const isWithinRangeOf = function(system, reference, range) {
 const isWithinMultileRanges = function(system, refrence_systems, ranges)
 {
 	is_in_range = true;
+	
+	if (verbose) console.log(`Refrence systens: ${refrence_systems}`);
+	if (verbose) console.log(`Refrence ranges: ${ranges}`);
+	
+	console.log('This code is not complete.');
+	process.exit(404)
 	//Loop through the systems checking if they are in raneg.	
 	return is_in_range;
 }
@@ -190,11 +196,11 @@ async function hunt() {
     ];
 	
 	//Get the systems that are going to be checked
-	usedRefrenceSystems = Object.keys(preferences.referenceSystemsRanges);
+	const usedRefrenceSystems = Object.keys(preferences.referenceSystemsRanges);
 	
 	if (verbose) console.log(`Refrence systens: ${usedRefrenceSystems}`);
 	
-	refrenceRanges = []
+	var refrenceRanges = []
 	//And the ranges for the systems in the same order
 	for (const star_system in usedRefrenceSystems) {
 		if (verbose) console.log(`Distance to ${usedRefrenceSystems[star_system]}:` +
@@ -205,10 +211,7 @@ async function hunt() {
 	
 	if (verbose) console.log(`Refrence ranges: ${refrenceRanges}`);
 	
-	console.log('This code is not complete.');
-	process.exit(404)
-	//referenceSystemsRanges
-	const referenceSystem = referenceSystems[preferences.referenceSystem];
+	//Output format
     const outputTable = new AsciiTable('Prospect Systems');
 
     outputTable.setHeading(' ', 'name', 'allegiance', 'population', 'factions', 'stations');
@@ -218,8 +221,8 @@ async function hunt() {
     console.info(`Processing ${populatedSystems.length} systems...`)
 
     const data = populatedSystems
-        .tap( () => console.info(`Filtering for systems within ${preferences.referenceRange}Ly of ${referenceSystem.name}...`))
-        .filter( system => isWithinRangeOf(system, referenceSystem, preferences.referenceRange))
+        .tap( () => console.info(`Filtering for systems within ${refrenceRanges}Ly of ${usedRefrenceSystems}...`))
+        .filter( system => isWithinMultileRanges(system, usedRefrenceSystems, refrenceRanges))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
         .tap( () => console.info(`Filtering out Pilot Federation Systems...`))
         .filter( system => system.allegiance !== 'Pilots Federation')
