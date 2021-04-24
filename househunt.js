@@ -8,8 +8,9 @@ function requireF(modulePath){ // force require
         return require(modulePath);
     }
     catch (e) {
-        console.log('requireF(): The file "' + modulePath + '".js could not be loaded.');
-        console.log('Try running "npm install ' + modulePath + ' --save"');
+		console.log(`requireF():`)
+        console.log(`The file "${modulePath}".js could not be loaded.`);
+        console.log(`Try running "npm install ${modulePath} --save"`);
         process.exit(1);
     }
 }
