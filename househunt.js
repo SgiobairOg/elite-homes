@@ -1,4 +1,4 @@
-const verbose = false
+const verbose = true
 
 //function for requiring with try catch
 //by DaniGuardiola
@@ -188,7 +188,23 @@ async function hunt() {
         await getSystemsPermitData,
         await getPopulatedSystems
     ];
-	console.log(preferences.referenceSystemsRanges);
+	
+	//Get the systems that are going to be checked
+	usedRefrenceSystems = Object.keys(preferences.referenceSystemsRanges);
+	
+	if (verbose) console.log(`Refrence systens: ${usedRefrenceSystems}`);
+	
+	refrenceRanges = []
+	//And the ranges for the systems in the same order
+	for (const star_system in usedRefrenceSystems) {
+		if (verbose) console.log(`Distance to ${usedRefrenceSystems[star_system]}:` +
+			`${preferences.referenceSystemsRanges[usedRefrenceSystems[star_system]]}`);
+		refrenceRanges.push(
+			preferences.referenceSystemsRanges[usedRefrenceSystems[star_system]]);
+	}
+	
+	if (verbose) console.log(`Refrence ranges: ${refrenceRanges}`);
+	
 	console.log('This code is not complete.');
 	process.exit(404)
 	//referenceSystemsRanges
