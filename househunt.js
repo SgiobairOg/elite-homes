@@ -121,6 +121,7 @@ async function getEDSMPopulatedSystems() {
         spinner.start()
         const decompressedData = (await ungzip(body)).toString();
         spinner.stop()
+        console.log('');
         console.log('Data decompressed.')
 
         return JSON.parse(decompressedData);
