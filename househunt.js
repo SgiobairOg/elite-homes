@@ -1,10 +1,31 @@
-const { ungzip } = require('node-gzip');
+const verbose = false
+
+//function for requiring with try catch
+//by DaniGuardiola
+//https://stackoverflow.com/questions/13197795/handle-errors-thrown-by-require-module-in-node-js/34005010#34005010
+function requireF(modulePath){ // force require
+    try {
+        return require(modulePath);
+    }
+    catch (e) {
+		console.log(`requireF():`)
+        console.log(`The file "${modulePath}".js could not be loaded.`);
+        console.log(`Try running "npm install ${modulePath} --save"`);
+        process.exit(1);
+    }
+}
+
+//load required
+const { ungzip } = requireF('node-gzip');
 const got = require('got');
 const AsciiTable = require('ascii-table');
 const cliProgress = require('cli-progress');
 const Spinner = require('cli-spinner').Spinner;
 const chalk = require('chalk');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const fs = require('fs');
+
+//CVS writer formating
 const csvWriter = createCsvWriter({
     path: 'reports/populated-systems.csv',
     header: [
@@ -20,6 +41,7 @@ const csvWriter = createCsvWriter({
 
 Object.defineProperty(Array.prototype, "tap", { value(f) { f(this); return this; }});
 
+//Chose the refrence systems from which the search will start
 const referenceSystems = {
     'RHEA': {
         name: 'Rhea',
@@ -31,6 +53,7 @@ const referenceSystems = {
     }
 };
 
+//Choose the requirements for the systems we are looking for
 const preferences = {
     population: 1,
     factionMax: 6,
@@ -93,11 +116,13 @@ async function getEDSMPopulatedSystems() {
                 progressBar1.setTotal(Math.floor(progress.total/1000000));
                 progressBar1.update(Math.floor(progress.transferred/1000000));
             })
+        console.log('');
         const spinner = new Spinner('%s Decompressing data...')
         spinner.setSpinnerString(27)
         spinner.start()
         const decompressedData = (await ungzip(body)).toString();
         spinner.stop()
+        console.log('');
         console.log('Data decompressed.')
 
         return JSON.parse(decompressedData);
@@ -209,7 +234,13 @@ async function hunt() {
     console.log(data[0])
 
     console.log(populatedSystems[1702].stations)
-
+    
+    //Make sure to add the reports folder if it does not already exist
+    if (!fs.existsSync("reports")){
+        fs.mkdirSync("reports");
+    }
+    
+	//TODO: add a check to see if file is already opened for writing
     await csvWriter
         .writeRecords(data)
         .then(()=> console.log('The CSV file was written successfully'));
