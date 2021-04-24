@@ -1,4 +1,4 @@
-const verbose = true
+const verbose = false
 
 //function for requiring with try catch
 //by DaniGuardiola
@@ -79,15 +79,16 @@ const isWithinRangeOf = function(system, reference, range) {
     return distance <= range;
 }
 
+//Calculates if a planet is within one of multiple ranges
 const isWithinMultileRanges = function(system, refrence_systems, ranges)
 {
-	is_in_range = true;
+	is_in_range = false;
 	
-	if (verbose) console.log(`Refrence systens: ${refrence_systems}`);
-	if (verbose) console.log(`Refrence ranges: ${ranges}`);
-	
-	console.log('This code is not complete.');
-	process.exit(404)
+	for(var sys_id in refrence_systems)
+	{
+		is_in_range = isWithinRangeOf(system,referenceSystems[refrence_systems[sys_id]],ranges[sys_id]);
+		if (is_in_range) break;
+	}
 	//Loop through the systems checking if they are in raneg.	
 	return is_in_range;
 }
