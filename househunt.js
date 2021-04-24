@@ -224,7 +224,7 @@ async function hunt() {
     console.info(`Processing ${populatedSystems.length} systems...`)
 
     const data = populatedSystems
-        .tap( () => console.info(`Filtering for systems within ${refrenceRanges}Ly of ${usedRefrenceSystems}...`))
+        .tap( () => console.info(`Filtering for systems within ${refrenceRanges}Ly of ${usedRefrenceSystems} respectively...`))
         .filter( system => isWithinMultileRanges(system, usedRefrenceSystems, refrenceRanges))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
         .tap( () => console.info(`Filtering out Pilot Federation Systems...`))
