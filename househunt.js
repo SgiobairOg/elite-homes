@@ -56,7 +56,7 @@ const referenceSystems = {
 const preferences = {
     population: 1,
     factionMax: 6,
-    referenceSystem: {
+    referenceSystemsRanges: {
 		'26 ALPHA MONOCEROTIS': 100,
 		'RHEA': 80,
 	},
@@ -78,9 +78,11 @@ const isWithinRangeOf = function(system, reference, range) {
     return distance <= range;
 }
 
-const isWithinMultileRanges = function(system, refrence_systems, refrence_range)
+const isWithinMultileRanges = function(system, refrence_systems, ranges)
 {
-	
+	is_in_range = true;
+	//Loop through the systems checking if they are in raneg.	
+	return is_in_range;
 }
 
 const freeOfPlayerFactions = function( system ) {
@@ -186,6 +188,10 @@ async function hunt() {
         await getSystemsPermitData,
         await getPopulatedSystems
     ];
+	console.log(preferences.referenceSystemsRanges);
+	console.log('This code is not complete.');
+	process.exit(404)
+	//referenceSystemsRanges
 	const referenceSystem = referenceSystems[preferences.referenceSystem];
     const outputTable = new AsciiTable('Prospect Systems');
 
