@@ -56,8 +56,10 @@ const referenceSystems = {
 const preferences = {
     population: 1,
     factionMax: 6,
-    referenceSystem: '26 ALPHA MONOCEROTIS',
-    referenceRange: 100,
+    referenceSystem: {
+		'26 ALPHA MONOCEROTIS': 100,
+		'RHEA': 80,
+	},
 }
 
 const multibar = new cliProgress.MultiBar({
@@ -74,6 +76,11 @@ const isWithinRangeOf = function(system, reference, range) {
         Math.pow((system.coords.z - reference.coords.z), 2));
     
     return distance <= range;
+}
+
+const isWithinMultileRanges = function(system, refrence_systems, refrence_range)
+{
+	
 }
 
 const freeOfPlayerFactions = function( system ) {
@@ -179,7 +186,7 @@ async function hunt() {
         await getSystemsPermitData,
         await getPopulatedSystems
     ];
-    const referenceSystem = referenceSystems[preferences.referenceSystem];
+	const referenceSystem = referenceSystems[preferences.referenceSystem];
     const outputTable = new AsciiTable('Prospect Systems');
 
     outputTable.setHeading(' ', 'name', 'allegiance', 'population', 'factions', 'stations');
