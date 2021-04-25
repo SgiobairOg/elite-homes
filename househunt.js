@@ -57,8 +57,10 @@ const referenceSystems = {
 const preferences = {
     population: 1,
     factionMax: 6,
-    referenceSystem: '26 ALPHA MONOCEROTIS',
-    referenceRange: 100,
+    referenceSystemsRanges: {
+		'26 ALPHA MONOCEROTIS': 100,
+		'RHEA': 80,
+	},
 }
 
 const multibar = new cliProgress.MultiBar({
@@ -75,6 +77,20 @@ const isWithinRangeOf = function(system, reference, range) {
         Math.pow((system.coords.z - reference.coords.z), 2));
     
     return distance <= range;
+}
+
+//Calculates if a planet is within one of multiple ranges
+const isWithinMultileRanges = function(system, refrence_systems, ranges)
+{
+	is_in_range = false;
+	
+	for(var sys_id in refrence_systems)
+	{
+		is_in_range = isWithinRangeOf(system,referenceSystems[refrence_systems[sys_id]],ranges[sys_id]);
+		if (is_in_range) break;
+	}
+	//Loop through the systems checking if they are in raneg.	
+	return is_in_range;
 }
 
 const freeOfPlayerFactions = function( system ) {
@@ -181,7 +197,24 @@ async function hunt() {
         await getSystemsPermitData,
         await getPopulatedSystems
     ];
-    const referenceSystem = referenceSystems[preferences.referenceSystem];
+	
+	//Get the systems that are going to be checked
+	const usedRefrenceSystems = Object.keys(preferences.referenceSystemsRanges);
+	
+	if (verbose) console.log(`Refrence systens: ${usedRefrenceSystems}`);
+	
+	var refrenceRanges = []
+	//And the ranges for the systems in the same order
+	for (const star_system in usedRefrenceSystems) {
+		if (verbose) console.log(`Distance to ${usedRefrenceSystems[star_system]}:` +
+			`${preferences.referenceSystemsRanges[usedRefrenceSystems[star_system]]}`);
+		refrenceRanges.push(
+			preferences.referenceSystemsRanges[usedRefrenceSystems[star_system]]);
+	}
+	
+	if (verbose) console.log(`Refrence ranges: ${refrenceRanges}`);
+	
+	//Output format
     const outputTable = new AsciiTable('Prospect Systems');
 
     outputTable.setHeading(' ', 'name', 'allegiance', 'population', 'factions', 'stations');
@@ -191,8 +224,8 @@ async function hunt() {
     console.info(`Processing ${populatedSystems.length} systems...`)
 
     const data = populatedSystems
-        .tap( () => console.info(`Filtering for systems within ${preferences.referenceRange}Ly of ${referenceSystem.name}...`))
-        .filter( system => isWithinRangeOf(system, referenceSystem, preferences.referenceRange))
+        .tap( () => console.info(`Filtering for systems within ${refrenceRanges}Ly of ${usedRefrenceSystems} respectively...`))
+        .filter( system => isWithinMultileRanges(system, usedRefrenceSystems, refrenceRanges))
         .tap( list => console.info(`Filter complete, ${list.length} systems remaining.`))
         .tap( () => console.info(`Filtering out Pilot Federation Systems...`))
         .filter( system => system.allegiance !== 'Pilots Federation')
